@@ -35,8 +35,9 @@ react的一次更新分为两个阶段
 - render阶段
 - commit阶段
 
-##### render阶段
-render阶段是在内部构建一颗新的fiber树，一般成为workInProgress树，构建过程依据现有的fiber树（current树），从root开始深度遍历再回溯到root。
+##### render阶段 
+> render阶段是 scheduler调度+ reconcile 就是把虚拟dom变成fiber
+render阶段是在内部构建一颗新的fiber树，一般成为workInProgress树，构建过程依据现有的fiber树（current树），从root开始深度遍历再回溯到root。创建effect链表
 
 每个fiber会经历两个阶段：
 - beginWorker: 组件状态的计算，diff的操作，render函数的执行
@@ -56,6 +57,7 @@ render阶段是在内部构建一颗新的fiber树，一般成为workInProgress�
 根据节点是否是首次渲染 生成fiber 或者diff fiber
 
 ##### commit阶段
+> 把fiber变成dom
 - 不可中断
 - 根据收集到的变化节点更新dom，异步执行useeffect 同步执行uselayouteffect
 
@@ -124,10 +126,11 @@ const classComponentUpdater = {
 这四种优先级 是**递进**的关系
 事件优先级由事件本身决定，更新优先级由事件计算得出，然后放到root.pendingLanes，任务优先级来自root.pendingLanes中最紧急的那些lanes对应的优先级，调度优先级根据任务优先级获取。几种优先级环环相扣，保证了高优任务的优先执行。
 
-参考： <https://segmentfault.com/a/1190000038947307>
-
-----
-
+参考： 
+[react优先级机制](https://segmentfault.com/a/1190000038947307)
+[Concurrent模式下React的更新行为- 优先级模型](https://segmentfault.com/a/1190000039131960)
+[react的调度机制原理](https://segmentfault.com/a/1190000039101758)
+---
 #### 双缓冲机制
 
 开始更新后，会有两棵树，一颗是workInProgress树，一棵是现有的current树，是当前页面显示的树。在更新未完成的时候，所有更新会在workInProgress树上，页面始终展示current，更新结束之后，两者替换。

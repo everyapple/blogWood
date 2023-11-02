@@ -53,21 +53,3 @@ const hook = {
 由于存在current树，也会存在currentHook。自然就是有两条hook链表，分别存在workInProgress和current节点的memoizedSate。
 
 **useContext不会被挂到hook链表上**
-> 所以为什么 react要用hooks链表呢
-
-如果有多个同个hook调用，还需要有调用的先后顺序，使用next串联所有的hook。
-
-> react16做了哪些更新
-
-> react hooks的本质
-
-> useContext为什么不会被挂到hook链表上
-
-因为在初始化和更新时会有两套不同的函数执行，mount 和 update，但是useContext只有一套代码，都是readContext.所以不需要挂载链表上。
-原理类似于观察者模式。Provider上的值发生变化，通知给context和consumer
-
->useContext 和 redux 的区别
-
-> 为什么只能在函数最外层调用HOOK，不能在循环，条件里调用
-
-因为
