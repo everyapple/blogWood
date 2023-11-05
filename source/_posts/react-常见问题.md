@@ -17,6 +17,7 @@ react16之前，虚拟dom的diff算法 理解是一个递归的过程，树如�
 ## 为什么 react要用hooks链表呢
 如果有多个同个hook调用，还需要有调用的先后顺序，使用next串联所有的hook，同时有一个workProcessHook指针记录当前调用的是哪个hook，方便下次更新时获取上一次更新的对象。在下一次更新时，再次执行hook，就会去找到当前运行节点的链表。
 
+链表的好处在于，即便暂停了，也可以用next记录下一次执行的节点，一旦浏览器有了空余时间，可以直接从这个next开始恢复。
 ## 为什么只能在函数最外层调用HOOK，不能在循环，条件里调用
 因为hook每次调用都会生成一个hook链表挂在fiber.memoizedstate上，按顺序挂的。挂载和更新必须保证是队列是一致的，不然会引起异常报错。
 
@@ -49,15 +50,15 @@ react有一个函数batchedUpdates会把这个值isBatchingUpdates变为true，�
 react17中暴露了这个方法<code>batchedUpdates</code>，包一下也可以批量更新。
 react18中直接处理了 全都是批量更新。
 具体来说
-- react引发的事件处理 （onclick等） 异步  
-- 绕过react通过绑定addeventlistner，或者settimeout等等。
+- react引发的事件处理 （onclick等） 异步
+- 绕过react通过绑定addeventlistner，或者settimeout等等 同步
 
 ## useContext为什么不会被挂到hook链表上
 因为在初始化和更新时会有两套不同的函数执行，mount 和 update，但是useContext只有一套代码，都是readContext.所以不需要挂载链表上。
 原理类似于观察者模式。Provider上的值发生变化，通知给context和consumer
 
 ## useContext 和 redux 的区别
-- context 
+- context
   - 适合做全局管理
   - 避免props传递的繁琐
   - 如果组件依赖了context， 只要局部更新，组件都会一起更新，加上memo也没用，因为memo依赖的是props
@@ -70,8 +71,8 @@ react18中直接处理了 全都是批量更新。
 ## useLayoutEffect 和 useEffect区别
 react的一次更新分为2个阶段：
 - render阶段： 构建一个fiber树，也就是workInProgress树；构建过程中，从root开始深度优先遍历再回溯到root
-  -beginWorker ：组件状态的计算，diff，render函数
-  -completeWorker：收集effect依赖链表，收集被跳过的update对象
+  - beginWorker ：组件状态的计算，diff，render函数
+  - completeWorker：收集effect依赖链表，收集被跳过的update对象
 - commit阶段 ： 异步执行useEffect，同步执行useLayoutEffect。
 **useEffect要在页面渲染完之后才执行，不会堵塞页面，后者则是在dom更新完成，还没有开始渲染前执行。**
 整体流程上都是先在render阶段，生成effect，并将它们拼接成链表，存到fiber.updateQueue上，最终带到commit阶段被处理。他们彼此的区别只是最终的执行时机不同，一个异步一个同步，这使得useEffect不会阻塞渲染，而useLayoutEffect会阻塞渲染。
@@ -114,20 +115,20 @@ dom render 和 主线程 先执行
 useEffect 在之后执行
 **dom render** 永远在useEffect之前执行
 
-- 父子组件 ： 
+- 父子组件 ：
   - dom render 和 主线程： 父 -> 子
   - useEffect 在之后执行 ： 子 -> 父
 - 兄弟组件：
   - 按前后顺序，递归
   - 如果组件含有子组件，则先执行完子组件 ，在走兄弟
-[react中函数组件 - 父子组件的执行顺序]<https://juejin.cn/post/7169526604199100447>
+[react中函数组件 - 父子组件的执行顺序](https://juejin.cn/post/7169526604199100447)
 
 1. 渲染顺序：React 的渲染过程是从父组件开始的，这是因为父组件通常包含子组件的引用。因此，父组件需要首先渲染以确定子组件应该如何渲染。
 2. 副作用和生命周期方法的执行：在所有组件都渲染完成后，React 会开始执行副作用和生命周期方法。这个过程是从最底层的子组件开始的，然后逐级向上。这样做的原因是，子组件通常是父组件逻辑的一部分，父组件的副作用可能依赖于子组件的状态或 DOM 元素。
 
 > 父子组件的return（destroy）事件呢
 [demo](https://codesandbox.io/s/uselayouteffect-zhixingshunxu-h5gg2?file=/src/App.js)
-1. 在删除dom时，从父->子 删除  destroy 
+1. 在删除dom时，从父->子 删除  destroy
 2. 在更新dom时，或者更新和删除都有时， 子->父 destroy
 **无论什么情况**都是先执行所有的destroy 在执行create方法
 ## useEffect return的意义
@@ -153,11 +154,34 @@ render()
 getSnapshotBeforeUpdate()
 componentDidUpdate()
 
-todo
-<https://segmentfault.com/a/1190000039031957>
-completework
-diff key <https://juejin.cn/post/7161063643105198093> <https://mp.weixin.qq.com/s/K8mHbIwR6NMaIrutDzg61A>
-错误边界
+#### React的错误边界
+过去，组件内的代码异常会导致react内部的状态被破坏，一个组件在渲染期间发生错误，会卸载整个组件树。但是部分组件的错误，不应该让整个应用页面崩溃。因此react16引入了**错误边界**
+错误边界是一种react组件，他可以捕获发生在组件任何位置的错误，并记录下来，展示降级的ui渲染。
+> 只能在类组件中使用，不能在hook中使用。因为需要用this.setState的回调传递callback，useState无法传入回调。
+> 以下四种场景无法捕获错误边界
+> > - 事件处理函数，需要用原生的trycatch
+> > - setTimeout等异步代码
+> > - 服务端渲染
+> > - 他自己本身的错误
+---
+实现错误边界的方法 依据两个生命周期
+**getDerivedStateFromError**和**componentDidCatch**
+- getDerivedStateFromError: 静态方法，给个机会去渲染降级ui
+- componetDidCatch： 组件实例方法，当错误发生后，记录错误
+当一个类组件定义了以上二者其一的时候，就会被定性为错误边界。
+**一般来说，会包在最顶层的路由组件**、具体的粒度有自己决定
+需要注意的是，从react16开始，没有被错误边界捕获的错误会导致整个react组件树被卸载。
+因为 有的时候，留下一个错误的ui 比 完全移除他 更糟糕。
+
+#### react的fiber vue为什么不需要fiber
+react的fiber机制：是由于react内状态不可修改，所以需要自顶向下的去渲染树。本身会在内部生成一颗巨大的虚拟dom树，给第二步的diff带来了很大的性能消耗。而js占据主线程，渲染线程就无法工作。所以出现了react的fiber。
+fiber 是一种纤程。他通过requestIdleCallback 去控制组件渲染。
+vue的渲染机制：vue2使用的Object.defineProperty或者vue3中的proxy对数据做一个劫持。vue能准确的知道视图模版中哪一块需要更新。他本身可以实现精准更新，精确到当前组件的最小粒度。一方面：是给每个组件配置了**监听器**，管理视图的依赖收集和数据更新。一方面：他的**模版语法，可以实现静态编译**，react的jsx语法是做不到的。这两者对性能也是有消耗的。但是他就不需要fiber去控制组件渲染，让出浏览器线程这类操作了。
+
 http2.0
 单点登录
-html2canvas e2eX
+html2canvas e2e
+
+
+性能优化
+taro的选型

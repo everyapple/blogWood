@@ -77,7 +77,9 @@ react中人为的进行了划分，最终目的是调度轻重缓急，因此产
 - 更新优先级： 事件导致的react产生的update对象的优先级（update.lane)
 - 任务优先级： 产生update对象后，react去执行的优先级
 - 调度优先级： scheduler根据react的任务生的调度任务的优先级
+
 ---
+
 ## 事件优先级
 1. 离散事件 click，keydown等不连续的 优先级0
 2. 用户阻塞事件 scroll drag mouseover 连续，阻塞渲染 优先级1
