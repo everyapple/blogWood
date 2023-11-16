@@ -23,7 +23,7 @@ react16之前，虚拟dom的diff算法 理解是一个递归的过程，树如�
 
 ## react hooks的引入解决了什么
 react的设计思想： 数据驱动视图。
-`view = fn(state)          
+`view = fn(state)
 `
 ### hooks出现前的逻辑复用
 主要是通过hoc和render props 解决，面对复杂业务，会引发**嵌套地狱**和**引发diff算法性能问题**
@@ -154,18 +154,20 @@ render()
 getSnapshotBeforeUpdate()
 componentDidUpdate()
 
-#### React的错误边界
-过去，组件内的代码异常会导致react内部的状态被破坏，一个组件在渲染期间发生错误，会卸载整个组件树。但是部分组件的错误，不应该让整个应用页面崩溃。因此react16引入了**错误边界**
-错误边界是一种react组件，他可以捕获发生在组件任何位置的错误，并记录下来，展示降级的ui渲染。
+## React的错误边界
+过去，组件内的代码异常会导致整个react内部状态破坏，一个组件在渲染期间发生错误，会卸载整个组件。因此引入了错误边界。
+
 > 只能在类组件中使用，不能在hook中使用。因为需要用this.setState的回调传递callback，useState无法传入回调。
 > 以下四种场景无法捕获错误边界
 > > - 事件处理函数，需要用原生的trycatch
 > > - setTimeout等异步代码
 > > - 服务端渲染
 > > - 他自己本身的错误
----
+{% note primary %}
+错误边界是一种组件， 他可以记录下渲染的错误，然后展示降级的ui。
+{% endnote%}
 实现错误边界的方法 依据两个生命周期
-**getDerivedStateFromError**和**componentDidCatch**
+{% note primary %}**getDerivedStateFromError**和**componentDidCatch**{% endnote %}
 - getDerivedStateFromError: 静态方法，给个机会去渲染降级ui
 - componetDidCatch： 组件实例方法，当错误发生后，记录错误
 当一个类组件定义了以上二者其一的时候，就会被定性为错误边界。
@@ -176,12 +178,9 @@ componentDidUpdate()
 #### react的fiber vue为什么不需要fiber
 react的fiber机制：是由于react内状态不可修改，所以需要自顶向下的去渲染树。本身会在内部生成一颗巨大的虚拟dom树，给第二步的diff带来了很大的性能消耗。而js占据主线程，渲染线程就无法工作。所以出现了react的fiber。
 fiber 是一种纤程。他通过requestIdleCallback 去控制组件渲染。
-vue的渲染机制：vue2使用的Object.defineProperty或者vue3中的proxy对数据做一个劫持。vue能准确的知道视图模版中哪一块需要更新。他本身可以实现精准更新，精确到当前组件的最小粒度。一方面：是给每个组件配置了**监听器**，管理视图的依赖收集和数据更新。一方面：他的**模版语法，可以实现静态编译**，react的jsx语法是做不到的。这两者对性能也是有消耗的。但是他就不需要fiber去控制组件渲染，让出浏览器线程这类操作了。
+vue的渲染机制：vue2使用的Object.defineProperty或者vue3中的proxy对数据做一个劫持。vue能准确的知道视图模版中哪一块需要更新。他本身可以实现精准更新，精确到当前组件的最小粒度。一方面：是给每个组件配置了{% label primary @监听器 %}，管理视图的依赖收集和数据更新。一方面：他的**模版语法，可以实现静态编译**，react的jsx语法是做不到的。这两者对性能也是有消耗的。但是他就不需要fiber去控制组件渲染，让出浏览器线程这类操作了。
 
-http2.0
-单点登录
-html2canvas e2e
+## diff算法
+Diff算法通过key和tag来对节点进行取舍，可直接将复杂的比对拦截掉，然后降级成节点的移动和增删这样比较简单的操作。对oldFiber和新的ReactElement节点的比对，将会生成新的fiber节点，同时标记上effectTag，这些fiber会被连到workInProgress树中，作为新的WIP节点。树的结构因此被一点点地确定，而新的workInProgress节点也基本定型。这意味着，在diff过后，workInProgress节点的beginWork节点就完成了。接下来会进入completeWork阶段
 
 
-性能优化
-taro的选型

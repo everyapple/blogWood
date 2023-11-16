@@ -83,3 +83,4 @@ function Test(props: { hello: string }) {
 
 #### 参考文档
 [vue和react深度比较](https://developer.aliyun.com/article/1207640)
+[vue和react的技术选型](https://cloud.tencent.com/developer/article/2271788)

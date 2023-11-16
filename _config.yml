@@ -11,6 +11,7 @@ author: dwood
 language: zh-CN
 timezone: ''
 
+
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
 url: https://everyapple.github.io/
@@ -41,6 +42,51 @@ external_link:
 filename_case: 0
 render_drafts: false
 post_asset_folder: false
+marked:
+  prependRoot: true
+  postAsset: true
+  markdown:
+  preset: "default"
+  render:
+    html: true
+    xhtmlOut: false
+    langPrefix: "language-"
+    breaks: true
+    linkify: true
+    typographer: true
+    quotes: "“”‘’"
+  enable_rules:
+  disable_rules:
+  plugins:
+    - markdown-it-abbr
+    - markdown-it-cjk-breaks
+    - markdown-it-deflist
+    - markdown-it-emoji
+    - markdown-it-footnote
+    - markdown-it-ins
+    - markdown-it-mark
+    - markdown-it-sub
+    - markdown-it-sup
+    - markdown-it-checkbox
+    - markdown-it-imsize
+    - markdown-it-expandable
+    - name: markdown-it-container
+      options: success
+    - name: markdown-it-container
+      options: tips
+    - name: markdown-it-container
+      options: warning
+    - name: markdown-it-container
+      options: danger
+  anchors:
+    level: 2
+    collisionSuffix: ""
+    permalink: false
+    permalinkClass: "header-anchor"
+    permalinkSide: "left"
+    permalinkSymbol: "¶"
+    case: 0
+    separator: "-"
 relative_link: false
 future: true
 highlight:
@@ -73,7 +119,7 @@ tag_map:
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
 meta_generator: true
-
+  
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
 ## You can customize the date format as defined in
@@ -106,3 +152,15 @@ deploy:
   repo: git@github.com:everyapple/everyapple.github.io.git
   branch: master
   token: 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
+
+
+#
+navbar:
+  blog_title: welcome
+  menu:
+    - { key: 'home', link: '/', icon: 'iconfont icon-home-fill' }
+
+index:
+  slogan:
+    enable: true
+    text: 这是一个 佛脚
