@@ -181,6 +181,6 @@ fiber 是一种纤程。他通过requestIdleCallback 去控制组件渲染。
 vue的渲染机制：vue2使用的Object.defineProperty或者vue3中的proxy对数据做一个劫持。vue能准确的知道视图模版中哪一块需要更新。他本身可以实现精准更新，精确到当前组件的最小粒度。一方面：是给每个组件配置了{% label primary @监听器 %}，管理视图的依赖收集和数据更新。一方面：他的**模版语法，可以实现静态编译**，react的jsx语法是做不到的。这两者对性能也是有消耗的。但是他就不需要fiber去控制组件渲染，让出浏览器线程这类操作了。
 
 ## diff算法
-Diff算法通过key和tag来对节点进行取舍，可直接将复杂的比对拦截掉，然后降级成节点的移动和增删这样比较简单的操作。对oldFiber和新的ReactElement节点的比对，将会生成新的fiber节点，同时标记上effectTag，这些fiber会被连到workInProgress树中，作为新的WIP节点。树的结构因此被一点点地确定，而新的workInProgress节点也基本定型。这意味着，在diff过后，workInProgress节点的beginWork节点就完成了。接下来会进入completeWork阶段
+Diff算法通过key和tag来对节点进行取舍，可直接将复杂的比对拦截掉，然后降级成节点的移动和增删这样比较简单的操作。对oldFiber和新的ReactElement节点的比对，将会生成新的fiber节点，同时标记上effectTag，这些fiber会被连到workInProgress树中，作为新的WIP节点。树的结构因此被一点点地确定，而新的workInProgress节点也基本定型。这意味着，在diff过后，workInProgress节点的beginWork节点就完成了。接下来会进入completeWork阶段。
 
-
+## react 事件执行机制

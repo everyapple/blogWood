@@ -374,7 +374,6 @@ class TestPlugins{
   constructor(){
     console.log('constructor')
   }
-  
   apply(compiler){
     compiler.hooks.emit.tap('testPlugin',(compilation)=>{})
   }
@@ -415,12 +414,5 @@ plugin在创建过程中会产生两个核心的对象
 
 插件 是一个函数 或者是 包含apply方法的对象
 
-
-
-
-
-
-
-
-
-
+## webpack的优化
+<https://mp.weixin.qq.com/s?__biz=Mzg3NjU2OTE1Mw==&mid=2247486291&idx=1&sn=03f5d60f7ce05fb63f619516b6e44175&scene=21#wechat_redirect>
